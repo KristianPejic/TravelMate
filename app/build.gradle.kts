@@ -6,6 +6,7 @@ plugins {
 }
 
 android {
+
     namespace = "com.fpmoz.travelmate"
     compileSdk = 35
 
