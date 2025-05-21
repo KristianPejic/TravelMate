@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "156216682773",
+    "project_id": "travelmate-d794b",
+    "storage_bucket": "travelmate-d794b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:156216682773:android:f90cad766c38515e36211c",
+        "android_client_info": {
+          "package_name": "com.fpmoz.travelmate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "156216682773-ivbmohmtp9u32rfu3e49oet5hambjne4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fpmoz.travelmate",
+            "certificate_hash": "829f4935a9b65d524c7c232ac70f45dc1c4aff13"
+          }
+        },
+        {
+          "client_id": "156216682773-25eu1sqn9l9rb9bn2inqlvic35jc2mhp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdRZeksFWFbQZT7K95cuPJ6hJeKQ43yeY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "156216682773-25eu1sqn9l9rb9bn2inqlvic35jc2mhp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
