@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TravelMate">
         <activity
+            android:name=".ResetPasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".TripAdapter"
             android:exported="false" />
         <activity

@@ -1,12 +1,9 @@
 package com.fpmoz.travelmate
 
-
-
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-
 import com.google.firebase.auth.FirebaseAuth
 
 class RegisterActivity : AppCompatActivity() {
@@ -16,6 +13,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var passwordEditText: EditText
     private lateinit var confirmPasswordEditText: EditText
     private lateinit var registerButton: Button
+    private lateinit var loginTxt: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +25,7 @@ class RegisterActivity : AppCompatActivity() {
         passwordEditText = findViewById(R.id.passwordEditText)
         confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText)
         registerButton = findViewById(R.id.registerButton)
+        loginTxt = findViewById(R.id.loginTxt)
 
         registerButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
@@ -54,6 +53,11 @@ class RegisterActivity : AppCompatActivity() {
                     }
                 }
         }
+
+        // Navigate back to Login Activity
+        loginTxt.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
     }
 }
-

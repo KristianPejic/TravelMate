@@ -1,8 +1,11 @@
 package com.fpmoz.travelmate
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -11,6 +14,8 @@ class ResetPasswordActivity : AppCompatActivity() {
 
     private lateinit var resetEmailTxt: EditText
     private lateinit var resetPasswordBtn: Button
+    private lateinit var backButton: ImageButton
+    private lateinit var logInTxt: TextView
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +24,8 @@ class ResetPasswordActivity : AppCompatActivity() {
 
         resetEmailTxt = findViewById(R.id.resetEmailTxt)
         resetPasswordBtn = findViewById(R.id.resetPasswordBtn)
-
+        backButton = findViewById(R.id.backButton)
+        logInTxt = findViewById(R.id.logInTxt)
 
         auth = FirebaseAuth.getInstance()
 
@@ -39,6 +45,17 @@ class ResetPasswordActivity : AppCompatActivity() {
                         Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     }
                 }
+        }
+
+        // Back button navigation
+        backButton.setOnClickListener {
+            finish() // Goes back to previous activity
+        }
+
+        // Navigate back to Login Activity
+        logInTxt.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
     }
 }
