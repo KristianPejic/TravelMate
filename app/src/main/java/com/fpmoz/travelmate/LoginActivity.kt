@@ -58,8 +58,10 @@ class LoginActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
                     // Navigate to HomeActivity
-                    startActivity(Intent(this, HomeActivity::class.java))
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
                     finish()
+
                 } else {
                     Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -71,9 +73,10 @@ class LoginActivity : AppCompatActivity() {
         // Check if user is signed in (non-null) and update UI accordingly
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            // User is already signed in, navigate to HomeActivity
-            startActivity(Intent(this, HomeActivity::class.java))
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
             finish()
+
         }
     }
 }

@@ -39,14 +39,19 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        dataBinding=true
     }
 }
 
 dependencies {
-
+    // Existing Firebase dependencies
     implementation(libs.firebase.auth.ktx)
     implementation(libs.play.services.auth)
     implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore.ktx)
+
+    // Existing Android dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -55,11 +60,29 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.firebase.auth)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    // MISSING DEPENDENCIES - ADD THESE:
+
+    // RecyclerView & CardView (essential for our trip lists)
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.cardview:cardview:1.0.0")
+
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // Fragment support (for navigation between fragments)
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+
+    // ViewBinding support (might need explicit dependency)
+    implementation("androidx.databinding:databinding-runtime:8.2.2")
+
+    // Testing dependencies (existing)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

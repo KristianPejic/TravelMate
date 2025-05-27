@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TravelMate">
         <activity
+            android:name=".repository.TripRepository"
+            android:exported="false" />
+        <activity
             android:name=".ResetPasswordActivity"
             android:exported="false" />
         <activity
@@ -35,9 +38,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-        <activity android:name=".HomeActivity"
-            android:exported="false"/>
-
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
