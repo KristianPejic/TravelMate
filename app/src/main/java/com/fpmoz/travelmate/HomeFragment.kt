@@ -63,12 +63,60 @@ class HomeFragment : Fragment() {
         tripAdapter = TripAdapter(
             onTripClick = { trip ->
                 showTripDetails(trip)
+            },
+            onDeleteClick = { trip ->
+                confirmDeleteTrip(trip)
             }
         )
 
         tripsRecyclerView?.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = tripAdapter
+        }
+    }
+
+    private fun confirmDeleteTrip(trip: Trip) {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Delete Trip")
+            .setMessage("Are you sure you want to delete this trip?\n\n${trip.origin} → ${trip.destination}")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteTrip(trip)
+            }
+            .setNegativeButton("Cancel", null)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .show()
+    }
+
+    private fun deleteTrip(trip: Trip) {
+        lifecycleScope.launch {
+            try {
+                tripRepository.deleteTrip(trip.id).fold(
+                    onSuccess = {
+                        Toast.makeText(requireContext(), "Trip deleted successfully!", Toast.LENGTH_SHORT).show()
+
+                        // Remove from current list immediately for better UX
+                        val currentList = tripAdapter.currentList.toMutableList()
+                        currentList.remove(trip)
+                        tripAdapter.submitList(currentList)
+
+                        // Update statistics immediately
+                        updateStatistics(currentList)
+
+                        // Check if list is empty after deletion
+                        if (currentList.isEmpty()) {
+                            showEmptyState()
+                        }
+
+                        // Refresh from server to ensure consistency
+                        loadTripHistoryQuietly()
+                    },
+                    onFailure = { error ->
+                        Toast.makeText(requireContext(), "Error deleting trip: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Unexpected error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -89,14 +137,9 @@ class HomeFragment : Fragment() {
                         loadingProgressBar?.visibility = View.GONE
 
                         if (trips.isEmpty()) {
-                            emptyStateText?.visibility = View.VISIBLE
-                            tripsRecyclerView?.visibility = View.GONE
-                            statsCard?.visibility = View.GONE
+                            showEmptyState()
                         } else {
-                            emptyStateText?.visibility = View.GONE
-                            tripsRecyclerView?.visibility = View.VISIBLE
-                            statsCard?.visibility = View.VISIBLE
-
+                            showTripsState()
                             tripAdapter.submitList(trips)
                             updateStatistics(trips)
                         }
@@ -119,6 +162,44 @@ class HomeFragment : Fragment() {
                 emptyStateText?.visibility = View.VISIBLE
             }
         }
+    }
+
+    // Quietly load trips without showing errors (for background refresh after delete)
+    private fun loadTripHistoryQuietly() {
+        if (!isAdded || view == null) return
+
+        lifecycleScope.launch {
+            try {
+                tripRepository.getUserTrips().fold(
+                    onSuccess = { trips ->
+                        if (!isAdded || view == null) return@fold
+
+                        if (trips.isEmpty()) {
+                            showEmptyState()
+                        } else {
+                            showTripsState()
+                            tripAdapter.submitList(trips)
+                            updateStatistics(trips)
+                        }
+                    },
+                    onFailure = { /* Ignore errors during quiet refresh */ }
+                )
+            } catch (e: Exception) {
+                // Ignore errors during quiet refresh
+            }
+        }
+    }
+
+    private fun showEmptyState() {
+        emptyStateText?.visibility = View.VISIBLE
+        tripsRecyclerView?.visibility = View.GONE
+        statsCard?.visibility = View.GONE
+    }
+
+    private fun showTripsState() {
+        emptyStateText?.visibility = View.GONE
+        tripsRecyclerView?.visibility = View.VISIBLE
+        statsCard?.visibility = View.VISIBLE
     }
 
     private fun updateStatistics(trips: List<Trip>) {

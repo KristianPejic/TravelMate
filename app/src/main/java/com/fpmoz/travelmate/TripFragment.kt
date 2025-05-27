@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.fpmoz.travelmate.databinding.FragmentTripBinding
@@ -12,7 +13,6 @@ import com.fpmoz.travelmate.model.TripStatus
 import com.fpmoz.travelmate.repository.TripRepository
 import com.fpmoz.travelmate.utils.TripCalculator
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,6 +23,19 @@ class TripFragment : Fragment() {
 
     private lateinit var tripRepository: TripRepository
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
+    // Views
+    private lateinit var originSpinner: Spinner
+    private lateinit var destinationSpinner: Spinner
+    private lateinit var transportSpinner: Spinner
+    private lateinit var helperText: TextView
+    private lateinit var previewCard: CardView
+    private lateinit var previewRoute: TextView
+    private lateinit var previewDistance: TextView
+    private lateinit var previewCost: TextView
+    private lateinit var saveTripBtn: Button
+    private lateinit var departureDateBtn: Button
+    private lateinit var returnDateBtn: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,27 +49,147 @@ class TripFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         tripRepository = TripRepository()
-        setupUI()
+        initViews(view)
+        setupSpinners()
+        setupDatePickers()
+        setupSaveButton()
     }
 
-    private fun setupUI() {
+    private fun initViews(view: View) {
+        originSpinner = view.findViewById(R.id.originSpinner)
+        destinationSpinner = view.findViewById(R.id.destinationSpinner)
+        transportSpinner = view.findViewById(R.id.transportSpinner)
+        helperText = view.findViewById(R.id.helperText)
+        previewCard = view.findViewById(R.id.previewCard)
+        previewRoute = view.findViewById(R.id.previewRoute)
+        previewDistance = view.findViewById(R.id.previewDistance)
+        previewCost = view.findViewById(R.id.previewCost)
+        saveTripBtn = view.findViewById(R.id.saveTripBtn)
+        departureDateBtn = view.findViewById(R.id.departureDateBtn)
+        returnDateBtn = view.findViewById(R.id.returnDateBtn)
+    }
+
+    private fun setupSpinners() {
+        // Setup origin spinner with all cities
+        val allCities = listOf("Select Origin City") + TripCalculator.getAvailableCities()
+        val originAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, allCities)
+        originSpinner.adapter = originAdapter
+
         // Setup transport spinner
         val transports = TripCalculator.getAvailableTransports()
-        binding.transportSpinner.adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            transports
-        )
+        val transportAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, transports)
+        transportSpinner.adapter = transportAdapter
 
-        // Setup date pickers
+        // Origin spinner listener
+        originSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (position > 0) { // Not "Select Origin City"
+                    val selectedOrigin = allCities[position]
+                    setupDestinationSpinner(selectedOrigin)
+                    helperText.text = "Now select your destination"
+                    helperText.setTextColor(resources.getColor(android.R.color.holo_green_dark, null))
+                } else {
+                    resetDestinationSpinner()
+                    helperText.text = "Please select origin city first"
+                    helperText.setTextColor(resources.getColor(android.R.color.holo_orange_dark, null))
+                    hidePreview()
+                    updateSaveButtonState()
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        // Destination spinner listener
+        destinationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (destinationSpinner.isEnabled && position > 0) {
+                    updateTripPreview()
+                    helperText.visibility = View.GONE
+                    updateSaveButtonState()
+                } else {
+                    hidePreview()
+                    updateSaveButtonState()
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        // Transport spinner listener
+        transportSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (isValidSelection()) {
+                    updateTripPreview()
+                    updateSaveButtonState()
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun setupDestinationSpinner(originCity: String) {
+        val availableDestinations = listOf("Select Destination") + TripCalculator.getDestinationCitiesFor(originCity)
+        val destinationAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, availableDestinations)
+        destinationSpinner.adapter = destinationAdapter
+        destinationSpinner.isEnabled = true
+        destinationSpinner.setSelection(0)
+    }
+
+    private fun resetDestinationSpinner() {
+        val emptyList = listOf("Select origin first")
+        val destinationAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, emptyList)
+        destinationSpinner.adapter = destinationAdapter
+        destinationSpinner.isEnabled = false
+    }
+
+    private fun updateTripPreview() {
+        if (!isValidSelection()) return
+
+        val origin = originSpinner.selectedItem.toString()
+        val destination = destinationSpinner.selectedItem.toString()
+        val transport = transportSpinner.selectedItem.toString()
+
+        val calculation = TripCalculator.calculateTrip(origin, destination, transport)
+
+        if (calculation.isRouteFound) {
+            previewRoute.text = "$origin → $destination"
+            previewDistance.text = "${transport} • ${calculation.distance} km"
+            previewCost.text = "Estimated cost: €%.2f".format(calculation.estimatedCost)
+            previewCard.visibility = View.VISIBLE
+        } else {
+            hidePreview()
+            Toast.makeText(requireContext(), "Route not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun hidePreview() {
+        previewCard.visibility = View.GONE
+    }
+
+    private fun isValidSelection(): Boolean {
+        return originSpinner.selectedItemPosition > 0 &&
+                destinationSpinner.selectedItemPosition > 0 &&
+                destinationSpinner.isEnabled
+    }
+
+    private fun updateSaveButtonState() {
+        val hasValidCities = isValidSelection()
+        val hasDates = departureDateBtn.text != "📅 Select Departure Date" &&
+                returnDateBtn.text != "📅 Select Return Date"
+
+        saveTripBtn.isEnabled = hasValidCities && hasDates
+        saveTripBtn.alpha = if (saveTripBtn.isEnabled) 1.0f else 0.5f
+    }
+
+    private fun setupDatePickers() {
         val calendar = Calendar.getInstance()
 
-        binding.departureDateBtn.setOnClickListener {
+        departureDateBtn.setOnClickListener {
             DatePickerDialog(
                 requireContext(),
                 { _, year, month, day ->
                     calendar.set(year, month, day)
-                    binding.departureDateBtn.text = dateFormat.format(calendar.time)
+                    departureDateBtn.text = "📅 ${dateFormat.format(calendar.time)}"
+                    updateSaveButtonState()
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -64,44 +197,34 @@ class TripFragment : Fragment() {
             ).show()
         }
 
-        binding.returnDateBtn.setOnClickListener {
+        returnDateBtn.setOnClickListener {
             DatePickerDialog(
                 requireContext(),
                 { _, year, month, day ->
                     calendar.set(year, month, day)
-                    binding.returnDateBtn.text = dateFormat.format(calendar.time)
+                    returnDateBtn.text = "📅 ${dateFormat.format(calendar.time)}"
+                    updateSaveButtonState()
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
             ).show()
         }
+    }
 
-        // Save trip button
-        binding.saveTripBtn.setOnClickListener {
+    private fun setupSaveButton() {
+        saveTripBtn.setOnClickListener {
             saveTrip()
         }
     }
 
     private fun saveTrip() {
-        val origin = binding.originInput.text.toString().trim()
-        val destination = binding.destinationInput.text.toString().trim()
-        val departureDate = binding.departureDateBtn.text.toString()
-        val returnDate = binding.returnDateBtn.text.toString()
-        val transport = binding.transportSpinner.selectedItem.toString()
+        val origin = originSpinner.selectedItem.toString()
+        val destination = destinationSpinner.selectedItem.toString()
+        val departureDate = departureDateBtn.text.toString().replace("📅 ", "")
+        val returnDate = returnDateBtn.text.toString().replace("📅 ", "")
+        val transport = transportSpinner.selectedItem.toString()
 
-        // Validation
-        if (origin.isEmpty() || destination.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill in origin and destination", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (departureDate == "Select Departure Date" || returnDate == "Select Return Date") {
-            Toast.makeText(requireContext(), "Please select both dates", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Calculate trip details
         val calculation = TripCalculator.calculateTrip(origin, destination, transport)
 
         if (!calculation.isRouteFound) {
@@ -120,39 +243,43 @@ class TripFragment : Fragment() {
             status = TripStatus.PLANNED
         )
 
-        // Save to Firebase
         lifecycleScope.launch {
-            binding.saveTripBtn.isEnabled = false
-            binding.saveTripBtn.text = "Saving..."
+            saveTripBtn.isEnabled = false
+            saveTripBtn.text = "Creating Trip..."
 
             try {
                 tripRepository.saveTrip(trip).fold(
                     onSuccess = { tripId ->
-                        Toast.makeText(requireContext(), "Trip saved successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Trip created successfully!", Toast.LENGTH_SHORT).show()
                         clearForm()
-
-                        // Show success message with trip details
                         showSuccessMessage(trip)
                     },
                     onFailure = { error ->
-                        Toast.makeText(requireContext(), "Error saving trip: ${error.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Error creating trip: ${error.message}", Toast.LENGTH_SHORT).show()
                     }
                 )
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Unexpected error: ${e.message}", Toast.LENGTH_SHORT).show()
             } finally {
-                binding.saveTripBtn.isEnabled = true
-                binding.saveTripBtn.text = "Save Trip"
+                saveTripBtn.isEnabled = true
+                saveTripBtn.text = "Create Trip"
+                updateSaveButtonState()
             }
         }
     }
 
     private fun clearForm() {
-        binding.originInput.text.clear()
-        binding.destinationInput.text.clear()
-        binding.departureDateBtn.text = "Select Departure Date"
-        binding.returnDateBtn.text = "Select Return Date"
-        binding.transportSpinner.setSelection(0)
+        originSpinner.setSelection(0)
+        destinationSpinner.setSelection(0)
+        transportSpinner.setSelection(0)
+        departureDateBtn.text = "📅 Select Departure Date"
+        returnDateBtn.text = "📅 Select Return Date"
+        hidePreview()
+        helperText.visibility = View.VISIBLE
+        helperText.text = "Please select origin city first"
+        helperText.setTextColor(resources.getColor(android.R.color.holo_orange_dark, null))
+        resetDestinationSpinner()
+        updateSaveButtonState()
     }
 
     private fun showSuccessMessage(trip: Trip) {
@@ -169,8 +296,7 @@ class TripFragment : Fragment() {
                 You can view and manage your trips in the Home tab.
             """.trimIndent().format(trip.estimatedCost))
             .setPositiveButton("View Trips") { _, _ ->
-                // Switch to home tab to show the trip
-                // You might need to implement this based on your MainActivity structure
+                // Could switch to home tab here
             }
             .setNegativeButton("Create Another", null)
             .show()
