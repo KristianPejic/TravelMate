@@ -79,6 +79,7 @@ object TripCalculator {
 
         Pair("Dubrovnik", "Split") to 220,
         Pair("Dubrovnik", "Zagreb") to 600,
+        Pair("Dubrovnik", "Zagreb") to 600,
         Pair("Pula", "Zagreb") to 260,
         Pair("Pula", "Rijeka") to 105,
         Pair("Pula", "Rovinj") to 35,
