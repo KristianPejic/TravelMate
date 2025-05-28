@@ -24,7 +24,7 @@ class TripFragment : Fragment() {
     private lateinit var tripRepository: TripRepository
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
-    // Views
+
     private lateinit var originSpinner: Spinner
     private lateinit var destinationSpinner: Spinner
     private lateinit var transportSpinner: Spinner
@@ -70,17 +70,17 @@ class TripFragment : Fragment() {
     }
 
     private fun setupSpinners() {
-        // Setup origin spinner with all cities
+
         val allCities = listOf("Select Origin City") + TripCalculator.getAvailableCities()
         val originAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, allCities)
         originSpinner.adapter = originAdapter
 
-        // Setup transport spinner
+
         val transports = TripCalculator.getAvailableTransports()
         val transportAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, transports)
         transportSpinner.adapter = transportAdapter
 
-        // Origin spinner listener
+
         originSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (position > 0) { // Not "Select Origin City"
@@ -99,7 +99,7 @@ class TripFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        // Destination spinner listener
+
         destinationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (destinationSpinner.isEnabled && position > 0) {
@@ -114,7 +114,7 @@ class TripFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        // Transport spinner listener
+
         transportSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (isValidSelection()) {
@@ -296,7 +296,7 @@ class TripFragment : Fragment() {
                 You can view and manage your trips in the Home tab.
             """.trimIndent().format(trip.estimatedCost))
             .setPositiveButton("View Trips") { _, _ ->
-                // Could switch to home tab here
+
             }
             .setNegativeButton("Create Another", null)
             .show()

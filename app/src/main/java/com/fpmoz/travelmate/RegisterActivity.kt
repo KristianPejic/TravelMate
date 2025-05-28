@@ -54,7 +54,7 @@ class RegisterActivity : AppCompatActivity() {
                 }
         }
 
-        // Navigate back to Login Activity
+
         loginTxt.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()

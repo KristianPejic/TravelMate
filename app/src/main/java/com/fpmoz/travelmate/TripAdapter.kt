@@ -43,39 +43,39 @@ class TripAdapter(
             // Status badge with dynamic colors
             destinationText.text = trip.status.name
             val statusColor = when (trip.status) {
-                TripStatus.PLANNED -> "#2196F3"  // Blue
-                TripStatus.ONGOING -> "#FF9800"  // Orange
-                TripStatus.COMPLETED -> "#4CAF50" // Green
-                TripStatus.CANCELLED -> "#F44336" // Red
+                TripStatus.PLANNED -> "#2196F3"
+                TripStatus.ONGOING -> "#FF9800"
+                TripStatus.COMPLETED -> "#4CAF50"
+                TripStatus.CANCELLED -> "#F44336"
             }
 
-            // Set status badge background color
+
             val statusDrawable = ContextCompat.getDrawable(itemView.context, R.drawable.status_badge_background)
             statusDrawable?.setTint(android.graphics.Color.parseColor(statusColor))
             destinationText.background = statusDrawable
 
-            // Date information
+
             datesText.text = "${trip.departureDate} - ${trip.returnDate}"
 
-            // Transport and distance
+
             transportText.text = if (trip.distance > 0) {
                 "${trip.transport} • ${trip.distance} km"
             } else {
                 trip.transport
             }
 
-            // Cost information
+
             if (trip.actualCost > 0.0) {
                 costText.text = "€%.2f".format(trip.actualCost)
             } else {
                 costText.text = "€%.2f".format(trip.estimatedCost)
             }
 
-            // Click listeners
+
             itemView.setOnClickListener { onTripClick(trip) }
             deleteButton.setOnClickListener { onDeleteClick(trip) }
 
-            // Add subtle animation on card click
+
             itemView.setOnClickListener {
                 itemView.animate()
                     .scaleX(0.98f)

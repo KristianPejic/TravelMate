@@ -47,12 +47,12 @@ class ResetPasswordActivity : AppCompatActivity() {
                 }
         }
 
-        // Back button navigation
+
         backButton.setOnClickListener {
-            finish() // Goes back to previous activity
+            finish()
         }
 
-        // Navigate back to Login Activity
+
         logInTxt.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()

@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
-        // Load Home by default
+
         bottomNav.selectedItemId = R.id.nav_home
         loadFragment(HomeFragment())
 
@@ -49,10 +49,10 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Logout")
             .setMessage("Are you sure you want to logout?")
             .setPositiveButton("Yes") { dialog, _ ->
-                // Sign out from Firebase Auth
+
                 FirebaseAuth.getInstance().signOut()
 
-                // Navigate to LoginActivity
+
                 val intent = Intent(this, LoginActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)

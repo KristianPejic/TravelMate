@@ -121,7 +121,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadTripHistory() {
-        // Check if view is still attached
+
         if (!isAdded || view == null) return
 
         lifecycleScope.launch {
@@ -131,7 +131,7 @@ class HomeFragment : Fragment() {
 
                 tripRepository.getUserTrips().fold(
                     onSuccess = { trips ->
-                        // Check if view is still attached before updating UI
+
                         if (!isAdded || view == null) return@fold
 
                         loadingProgressBar?.visibility = View.GONE
@@ -145,7 +145,7 @@ class HomeFragment : Fragment() {
                         }
                     },
                     onFailure = { error ->
-                        // Check if view is still attached before updating UI
+
                         if (!isAdded || view == null) return@fold
 
                         loadingProgressBar?.visibility = View.GONE
@@ -154,7 +154,7 @@ class HomeFragment : Fragment() {
                     }
                 )
             } catch (e: Exception) {
-                // Check if view is still attached before updating UI
+
                 if (!isAdded || view == null) return@launch
 
                 loadingProgressBar?.visibility = View.GONE
@@ -164,7 +164,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // Quietly load trips without showing errors (for background refresh after delete)
+
     private fun loadTripHistoryQuietly() {
         if (!isAdded || view == null) return
 
@@ -182,10 +182,10 @@ class HomeFragment : Fragment() {
                             updateStatistics(trips)
                         }
                     },
-                    onFailure = { /* Ignore errors during quiet refresh */ }
+                    onFailure = {  }
                 )
             } catch (e: Exception) {
-                // Ignore errors during quiet refresh
+
             }
         }
     }
@@ -203,7 +203,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateStatistics(trips: List<Trip>) {
-        // Check if view is still attached
+
         if (!isAdded || view == null) return
 
         val totalTrips = trips.size
@@ -224,7 +224,7 @@ class HomeFragment : Fragment() {
             totalCostText?.text = "€%.2f (estimated)".format(totalEstimatedCost)
         }
 
-        // Calculate average cost per trip
+
         val avgCost = if (totalTrips > 0) {
             if (totalActualCost > 0) totalActualCost / totalTrips else totalEstimatedCost / totalTrips
         } else 0.0
@@ -232,7 +232,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun showTripDetails(trip: Trip) {
-        // Check if fragment is still attached
+
         if (!isAdded) return
 
         val message = """
@@ -255,12 +255,12 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        loadTripHistory() // Refresh data when returning to this fragment
+        loadTripHistory()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Clear all view references to prevent memory leaks
+
         loadingProgressBar = null
         emptyStateText = null
         tripsRecyclerView = null

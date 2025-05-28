@@ -10,7 +10,7 @@ object TripCalculator {
     )
 
     private val distanceMap = mapOf(
-        // Zagreb connections (capital city - most routes)
+
         Pair("Zagreb", "Split") to 410,
         Pair("Zagreb", "Rijeka") to 160,
         Pair("Zagreb", "Osijek") to 280,
@@ -31,7 +31,7 @@ object TripCalculator {
         Pair("Zagreb", "Velika Gorica") to 16,
         Pair("Zagreb", "Samobor") to 20,
 
-        // Split connections (major coastal city)
+
         Pair("Split", "Zagreb") to 410,
         Pair("Split", "Dubrovnik") to 220,
         Pair("Split", "Zadar") to 160,
@@ -50,7 +50,7 @@ object TripCalculator {
         Pair("Split", "Vis") to 85,
         Pair("Split", "Korčula") to 145,
 
-        // Rijeka connections (major port city)
+
         Pair("Rijeka", "Zagreb") to 160,
         Pair("Rijeka", "Split") to 350,
         Pair("Rijeka", "Pula") to 105,
@@ -64,7 +64,7 @@ object TripCalculator {
         Pair("Rijeka", "Cres") to 95,
         Pair("Rijeka", "Mali Lošinj") to 120,
 
-        // Osijek connections (eastern Croatia)
+
         Pair("Osijek", "Zagreb") to 280,
         Pair("Osijek", "Split") to 450,
         Pair("Osijek", "Rijeka") to 520,
@@ -76,7 +76,7 @@ object TripCalculator {
         Pair("Osijek", "Našice") to 50,
         Pair("Osijek", "Beli Manastir") to 45,
 
-        // Other major connections with reverse routes included
+
         Pair("Dubrovnik", "Split") to 220,
         Pair("Dubrovnik", "Zagreb") to 600,
         Pair("Pula", "Zagreb") to 260,
@@ -87,7 +87,7 @@ object TripCalculator {
         Pair("Zadar", "Split") to 160,
         Pair("Zadar", "Rijeka") to 240,
 
-        // Add more routes as needed...
+
     )
 
     data class TripCalculation(

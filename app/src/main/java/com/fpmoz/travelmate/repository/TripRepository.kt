@@ -28,7 +28,7 @@ class TripRepository {
         return try {
             val userId = auth.currentUser?.uid ?: throw Exception("User not logged in")
 
-            // Simplified query without orderBy to avoid index requirements
+
             val querySnapshot = tripsCollection
                 .whereEqualTo("userId", userId)
                 .get()
@@ -36,7 +36,7 @@ class TripRepository {
 
             val trips = querySnapshot.documents.mapNotNull { document ->
                 document.toObject(Trip::class.java)?.copy(id = document.id)
-            }.sortedByDescending { it.createdAt } // Sort in memory instead
+            }.sortedByDescending { it.createdAt }
 
             Result.success(trips)
         } catch (e: Exception) {
